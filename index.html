@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Will you be my Valentine?</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #ff9a9e 0, #fecfef 30%, #f5576c 80%, #45254a 100%);
+      overflow: hidden;
+      color: #fff;
+    }
+
+    /* fundal parallax cu inimioare */
+    .heart-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .heart {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.85);
+      animation: floatUp 10s linear infinite;
+      opacity: 0;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) translateX(0) scale(0.7);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-120vh) translateX(40px) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* container principal */
+    .scene {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 32px;
+      padding: 24px;
+      transform: translateY(-40px); /* RIDICĂ TOTUL MAI SUS */
+    }
+
+    /* plic animat */
+    .envelope-wrapper {
+      position: relative;
+      width: 260px;
+      height: 190px;
+      cursor: pointer;
+      perspective: 1000px;
+      transition: transform 0.6s ease, filter 0.6s ease;
+      filter: drop-shadow(0 18px 35px rgba(0, 0, 0, 0.65));
+    }
+
+    .envelope-wrapper:hover {
+      transform: translateY(-6px) scale(1.02);
+      filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.85));
+    }
+
+    .envelope {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #ffdde1, #ee9ca7);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .envelope::before,
+    .envelope::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      background: linear-gradient(145deg, #ffb6c1, #ff7c8a);
+    }
+
+    /* clapeta */
+    .envelope::before {
+      top: 0;
+      clip-path: polygon(0 0, 50% 55%, 100% 0);
+      transform-origin: top;
+      transform: rotateX(0deg);
+      transition: transform 0.7s ease-in-out;
+      z-index: 3;
+    }
+
+    /* triunghi de jos */
+    .envelope::after {
+      bottom: 0;
+      clip-path: polygon(0 100%, 50% 45%, 100% 100%);
+      z-index: 1;
+    }
+
+    .envelope-inner {
+      position: absolute;
+      inset: 14px;
+      background: #ffeef4;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .envelope-heart {
+      font-size: 42px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .envelope-text {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #ff4b5c;
+      font-weight: 600;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      40% {
+        transform: scale(1.2);
+      }
+    }
+
+    .hint {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin-top: 8px;
+      text-align: center;
+      animation: hintFade 1.8s ease-in-out infinite;
+    }
+
+    @keyframes hintFade {
+      0%, 100% {
+        opacity: 0.4;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* cardul de Valentine */
+    .card {
+      position: relative;
+      width: min(460px, 90vw);
+      padding: 32px 28px 28px;
+      border-radius: 24px;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06));
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow:
+        0 18px 45px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      text-align: center;
+      transform: translateY(40px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .card.visible {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card-title {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .card-sub {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      line-height: 1.4;
+      margin-bottom: 22px;
+    }
+
+    .card-sub span {
+      color: #ffe0f0;
+      font-weight: 600;
+    }
+
+    .question {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 26px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.85rem 2.1rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease,
+        opacity 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #yesBtn {
+      background: linear-gradient(135deg, #ff4b5c, #ff1f67);
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(255, 75, 92, 0.6);
+    }
+
+    #yesBtn::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.6), transparent);
+      transform: skewX(-25deg);
+      opacity: 0;
+    }
+
+    #yesBtn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 18px 40px rgba(255, 75, 92, 0.8);
+    }
+
+    #yesBtn:hover::after {
+      animation: shine 0.8s forwards;
+    }
+
+    @keyframes shine {
+      0% {
+        transform: translateX(0) skewX(-25deg);
+        opacity: 0;
+      }
+      40% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(260%) skewX(-25deg);
+        opacity: 0;
+      }
+    }
+
+    #noBtn {
+      background: rgba(255, 255, 255, 0.9);
+      color: #ff4b5c;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+      min-width: 92px;
+    }
+
+    #noBtn:hover {
+      background: #ffe7ee;
+    }
+
+    .answer-message {
+      font-size: 1.25rem;
+      min-height: 1.4em;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .answer-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .answer-message strong {
+      color: #ffe0f5;
+    }
+
+    /* motan care dansează cu floarea în dinți */
+    .cat-dance {
+      margin-top: 26px;
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 8px;
+      font-size: 2.8rem;
+      animation: catEnter 0.7s ease-out forwards;
+    }
+
+    .cat-dance.show {
+      display: flex;
+    }
+
+    .cat-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: catDance 0.7s ease-in-out infinite alternate;
+    }
+
+    .cat-head {
+      position: relative;
+    }
+
+    .cat-flower {
+      position: absolute;
+      left: 60%;
+      bottom: 0;
+      transform: translateX(4px) rotate(-12deg);
+      font-size: 1.8rem;
+    }
+
+    .cat-legs {
+      font-size: 2.2rem;
+      margin-top: -6px;
+    }
+
+    .cat-tail {
+      font-size: 2.2rem;
+      margin-left: 8px;
+      animation: tailWave 0.9s ease-in-out infinite alternate;
+    }
+
+    @keyframes catDance {
+      0% {
+        transform: translateY(0) rotate(-4deg);
+      }
+      50% {
+        transform: translateY(-6px) rotate(4deg);
+      }
+      100% {
+        transform: translateY(0) rotate(-4deg);
+      }
+    }
+
+    @keyframes tailWave {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(18deg);
+      }
+    }
+
+    @keyframes catEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* artificii inimioare când e Yes */
+    .burst {
+      position: fixed;
+      pointer-events: none;
+      font-size: 20px;
+      animation: burst 1s ease-out forwards;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    @keyframes burst {
+      0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0;
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1.8);
+        opacity: 0;
+      }
+    }
+
+    /* muzică badge */
+    .music-badge {
+      position: fixed;
+      bottom: 16px;
+      right: 18px;
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 3;
+    }
+
+    .music-badge.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .music-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #66ff9a;
+      box-shadow: 0 0 8px #66ff9a;
+      animation: pulseDot 1.3s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+      50% {
+        transform: scale(1.3);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .scene {
+        transform: translateY(-80px); /* puțin mai sus și pe mobil */
+      }
+      .card-title {
+        font-size: 1.8rem;
+      }
+      .question {
+        font-size: 1.3rem;
+      }
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+      .buttons {
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- fundal inimioare -->
+  <div class="heart-layer" id="heartLayer"></div>
+
+  <div class="scene">
+    <div class="envelope-wrapper" id="envelopeWrapper">
+      <div class="envelope" id="envelope">
+        <div class="envelope-inner">
+          <div class="envelope-heart">❤️</div>
+          <div class="envelope-text">Tap to open</div>
+        </div>
+      </div>
+    </div>
+    <div class="hint">Apasă pe plic ca să vezi întrebarea…</div>
+
+    <div class="card" id="card">
+      <div class="card-title">Will you be my Valentine?</div>
+      <div class="card-sub">
+        Întrebarea asta vine la pachet cu un mic disclaimer:
+        <span>nu există variantă greșită, dar una îmi face inima să sară de bucurie</span>.
+      </div>
+
+      <div class="question">So… will you be my Valentine?</div>
+
+      <div class="buttons">
+        <button id="yesBtn">Yes, obviously</button>
+        <button id="noBtn">Hmm, maybe not</button>
+      </div>
+
+      <div class="answer-message" id="answerMessage"></div>
+
+      <div class="cat-dance" id="catDance">
+        <div class="cat-body">
+          <div class="cat-head">
+            😺
+            <span class="cat-flower">🌹</span>
+          </div>
+          <div class="cat-legs">／ᐠﹷ ‸ ﻌ ﹷ ᐟ＼</div>
+        </div>
+        <div class="cat-tail">〰️</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="music-badge" id="musicBadge">
+    <div class="music-dot"></div>
+    <span>Little romantic soundtrack playing</span>
+  </div>
+
+  <!-- muzică (poți schimba src cu alt mp3) -->
+  <audio id="bgMusic" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_91f2fcffb0.mp3?filename=romantic-background-111264.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    const heartLayer = document.getElementById('heartLayer');
+    const envelopeWrapper = document.getElementById('envelopeWrapper');
+    const envelope = document.getElementById('envelope');
+    const card = document.getElementById('card');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const answerMessage = document.getElementById('answerMessage');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBadge = document.getElementById('musicBadge');
+    const catDance = document.getElementById('catDance');
+
+    let envelopeOpened = false;
+    let noClicks = 0;
+
+    // inimioare parallax
+    function spawnHearts() {
+      for (let i = 0; i < 18; i++) {
+        const h = document.createElement('div');
+        h.className = 'heart';
+        h.textContent = '❤️';
+        const delay = Math.random() * -10;
+        const duration = 8 + Math.random() * 7;
+        const size = 14 + Math.random() * 22;
+        const left = Math.random() * 100;
+        const blur = Math.random() * 8;
+
+        h.style.left = left + 'vw';
+        h.style.fontSize = size + 'px';
+        h.style.animationDuration = duration + 's';
+        h.style.animationDelay = delay + 's';
+        h.style.filter = `blur(${blur}px)`;
+
+        heartLayer.appendChild(h);
+      }
+    }
+    spawnHearts();
+
+    // deschidere plic
+    function openEnvelope() {
+      if (envelopeOpened) return;
+      envelopeOpened = true;
+
+      envelope.style.transition = 'transform 0.7s ease, opacity 0.6s ease';
+      envelope.style.transform = 'translateY(-110px)';
+
+      // clapeta se deschide
+      envelope.classList.add('flap-open');
+
+      setTimeout(() => {
+        envelope.style.opacity = '0';
+      }, 600);
+
+      envelopeWrapper.style.pointerEvents = 'none';
+      envelopeWrapper.style.transform = 'translateY(-80px) scale(0.9)';
+      envelopeWrapper.style.opacity = '0';
+
+      // apare cardul
+      setTimeout(() => {
+        card.classList.add('visible');
+      }, 450);
+
+      // muzică
+      bgMusic.play().catch(() => {
+        // unele browsere blochează autoplay; ignorăm
+      });
+      musicBadge.classList.add('visible');
+    }
+
+    // stil suplimentar pentru clapetă
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      .envelope.flap-open::before {
+        transform: rotateX(180deg);
+      }
+    `;
+    document.head.appendChild(sheet);
+
+    envelopeWrapper.addEventListener('click', openEnvelope);
+
+    // reacție la Yes
+    function celebrateYes() {
+      answerMessage.innerHTML =
+        '<strong>Perfect.</strong> De acum încolo, asta e pagina noastră oficială de Valentine.';
+
+      answerMessage.classList.add('show');
+
+      // val de inimioare
+      for (let i = 0; i < 14; i++) {
+        setTimeout(() => {
+          const b = document.createElement('div');
+          b.className = 'burst';
+          b.textContent = ['❤️','💖','💕','💗'][Math.floor(Math.random() * 4)];
+          const x = window.innerWidth / 2 + (Math.random() - 0.5) * 260;
+          const y = window.innerHeight / 2 + (Math.random() - 0.5) * 160;
+          b.style.left = x + 'px';
+          b.style.top = y + 'px';
+          document.body.appendChild(b);
+          setTimeout(() => b.remove(), 1000);
+        }, i * 70);
+      }
+
+      yesBtn.style.transform = 'scale(1.08)';
+      yesBtn.style.boxShadow = '0 22px 48px rgba(255, 75, 92, 0.9)';
+
+      // butonul No se dizolvă
+      noBtn.style.opacity = '0';
+      noBtn.style.pointerEvents = 'none';
+
+      // arată motanul care dansează cu floarea în dinți
+      catDance.classList.add('show');
+    }
+
+    yesBtn.addEventListener('click', celebrateYes);
+
+    // butonul No – joacă de-a greu de cucerit
+    noBtn.addEventListener('mouseover', () => {
+      noClicks++;
+
+      if (noClicks <= 4) {
+        const offsetX = (Math.random() - 0.5) * 220;
+        const offsetY = (Math.random() - 0.5) * 80;
+
+        noBtn.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      } else if (noClicks <= 7) {
+        noBtn.textContent = 'Ești sigură?';
+        noBtn.style.transform = 'translate(0, 0) scale(0.95)';
+      } else {
+        noBtn.textContent = 'Ok, fine, yes 🙂';
+        noBtn.style.transform = 'translate(0, 0) scale(0.9)';
+      }
+    });
+
+    noBtn.addEventListener('click', () => {
+      if (noClicks < 7) {
+        answerMessage.textContent = 'Promit că nu renunț așa ușor.';
+      } else {
+        answerMessage.textContent = 'Știam eu. Răspunsul corect era tot Yes.';
+      }
+      answerMessage.classList.add('show');
+      yesBtn.style.transform = 'scale(1.08)';
+    });
+  </script>
+</body>
+</html>
