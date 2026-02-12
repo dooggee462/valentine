@@ -13,15 +13,16 @@
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #281b5f 0, #462b93 35%, #ff6fb5 80%, #ffbcbc 100%);
-      overflow: hidden;
-      color: #fff;
-    }
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start; /* ca să înceapă de sus pe telefon */
+  justify-content: center;
+  background: radial-gradient(...);
+  overflow-x: hidden;   /* nu vrem scroll pe orizontală */
+  overflow-y: auto;     /* permitem scroll pe verticală */
+  color: #fff;
+}
 
     /* fundal cu inimioare & steluțe (ușor, pentru telefon) */
     .bg-layer {
